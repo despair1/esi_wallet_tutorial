@@ -1,5 +1,6 @@
 import peewee
 import config_init
+
 configuration = config_init.config_init
 db = peewee.SqliteDatabase(configuration.get("wallet_database_path"))
 
@@ -20,17 +21,26 @@ class Transactions(peewee.Model):
         database = db
 
     @staticmethod
-    def insert_json(json):
+    def insert_json(json: list) -> object:
         with db.atomic():
             for data_dict in json:
                 Transactions.create(**data_dict)
-                """
+
+    @staticmethod
+    def get_max_transaction_id() -> int:
+        max_transaction_id = 0
+        for i in Transactions.select(peewee.fn.MAX(Transactions.transaction_id).alias("max1")):
+            max_transaction_id = i.max1
+        if max_transaction_id is None:
+            max_transaction_id = 0
+        return max_transaction_id
+
+
+"""
         with db.atomic():
             for idx in range(0, len(json), 100):
                 Transactions.insert_many(json[idx:idx + 100]).execute()
 """
 
-
 db.connect()
 db.create_tables([Transactions, ])
-
