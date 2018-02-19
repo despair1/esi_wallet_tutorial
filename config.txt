@@ -14,7 +14,7 @@ oauth_database_path=c:/eveauth/oauth_database.sql
 
 
 #taxes
-citadel_fee=0.003
+buy_broker_fee=0.003
 sell_broker_fee=0.0208
 sales_tax=0.01
 

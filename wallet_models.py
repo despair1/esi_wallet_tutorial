@@ -1,6 +1,5 @@
 import peewee
 import config_init
-import sys
 
 configuration = config_init.config_init
 db = peewee.SqliteDatabase(configuration.get("wallet_database_path"))
@@ -33,23 +32,26 @@ class Transactions(peewee.Model):
             self.quantity += quantity
 
         def finalize(self):
-            # print(self.quantity)
-            # print(configuration.get("sales_tax"))
-            # print(configuration.get("sell_broker_fee"))
             r = self.product / self.quantity * (
                     1.0 - float(configuration.get("sales_tax")) * (1.0 - float(configuration.get("sell_broker_fee"))))
-            # print(r)
-            r1 = 1.0 - float(configuration.get("sales_tax"))
-            # print(r1)
             return r
-            # return 1.0
-            try:
-                return self.product / self.quantity * (
-                        1 - configuration.get("sales_tax") * (1 - configuration.get("sell_broker_fee")))
 
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
-                raise
+    @db.aggregate()
+    class AvgBuyPrice(object):
+        def __init__(self):
+            self.product = 0
+            self.quantity = 0
+            pass
+
+        def step(self, unit_price, quantity):
+            self.product += unit_price * quantity
+            self.quantity += quantity
+
+        def finalize(self):
+            r = self.product / self.quantity * (
+                    1.0 + float(configuration.get("buy_broker_fee")))
+            return r
+
 
     @staticmethod
     def insert_json(json: list) -> object:
@@ -66,12 +68,6 @@ class Transactions(peewee.Model):
             max_transaction_id = 0
         return max_transaction_id
 
-
-"""
-        with db.atomic():
-            for idx in range(0, len(json), 100):
-                Transactions.insert_many(json[idx:idx + 100]).execute()
-"""
 
 db.connect()
 db.create_tables([Transactions, ])
