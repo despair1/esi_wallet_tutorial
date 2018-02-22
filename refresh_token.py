@@ -13,13 +13,18 @@ def refresh_token(r_token):
                       ),
                       data={"grant_type": "refresh_token",
                             "refresh_token": r_token})
-    print(r.status_code)
+    print("Refrashing token: ", r.status_code)
     print(r.text)
     return r.json()
 
 
-for i in oauth_models.Tokens.select():
-    resp = refresh_token(i.refresh_token)
-    i.access_token = resp["access_token"]
-    i.save()
+def update_database():
+    for i in oauth_models.Tokens.select():
+        resp = refresh_token(i.refresh_token)
+        i.access_token = resp["access_token"]
+        i.save()
+
+
+if __name__ == "__main__":
+    update_database()
 

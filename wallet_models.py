@@ -5,6 +5,21 @@ configuration = config_init.config_init
 db = peewee.SqliteDatabase(configuration.get("wallet_database_path"))
 
 
+class Names(peewee.Model):
+    id = peewee.BigIntegerField(unique=True)
+    name = peewee.CharField()
+    category = peewee.CharField()
+
+    class Meta:
+        database = db
+
+    @staticmethod
+    def insert_json(json: list):
+        with db.atomic():
+            for data_dict in json:
+                Names.create(**data_dict)
+
+
 class Transactions(peewee.Model):
     transaction_id = peewee.BigIntegerField(unique=True)
     date = peewee.DateTimeField()
@@ -70,4 +85,4 @@ class Transactions(peewee.Model):
 
 
 db.connect()
-db.create_tables([Transactions, ])
+db.create_tables([Transactions, Names])
