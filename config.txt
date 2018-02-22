@@ -1,8 +1,12 @@
 #report
 db_path=f:/dev/evedev/mail_arch/db1.sql
 wallet_database_path=c:/eveauth/wallet_database.sql
+
 esi_host=https://esi.tech.ccp.is
 wallet_transaction_url_path=/v1/characters/{character_id}/wallet/transactions/
+universe_names_url_path=/v2/universe/names/
+user_agent=esi_wallet_tutorial
+
 
 #oauth
 security_path=c:/eveauth/app.keys
